@@ -10,6 +10,8 @@
 
 #define SYNC_BYTE 0x45
 
+#define INPUT_FREQ 100
+
 BluetoothSerial SerialBT;
 
 void setup() {
@@ -30,20 +32,13 @@ void loop() {
 	if (fabsf(x) < JOYSTICK_DEADZONE) { vrx = JOYSTICK_RESOLUTION / 2; }
 	if (fabsf(y) < JOYSTICK_DEADZONE) { vry = JOYSTICK_RESOLUTION / 2; }
 
-	SerialBT.write(SYNC_BYTE);
-	SerialBT.write('x');
-	SerialBT.write(vrx >> 8);
-	SerialBT.write(vrx & 0xFF);
-
-	SerialBT.write(SYNC_BYTE);
-	SerialBT.write('y');
-	SerialBT.write(vry >> 8);
-	SerialBT.write(vry & 0xFF);
-
-	SerialBT.write(SYNC_BYTE);
-	SerialBT.write('b');
-	SerialBT.write(0);
-	SerialBT.write(1 - sw);
+	uint8_t bufferX[] = { SYNC_BYTE, 'x', vrx >> 8, vrx & 0xFF };
+	uint8_t bufferY[] = { SYNC_BYTE, 'y', vry >> 8, vry & 0xFF };
+	uint8_t bufferB[] = { SYNC_BYTE, 'b', 0, 1 - sw };
+	SerialBT.write(bufferX, sizeof(bufferX));
+	SerialBT.write(bufferY, sizeof(bufferY));
+	SerialBT.write(bufferB, sizeof(bufferB));
 	
 	Serial.printf("X:%f Y:%f B:%f\r\n", x, y, (float)sw);
+	delay(1000 / INPUT_FREQ);
 }
