@@ -39,7 +39,7 @@ void readRadioInput() {
 		uint8_t lsb = SerialBT.read();
 		uint16_t input = (msb << 8) | lsb;
 		if (typeByte == 'x') { controller.xAxis = 2.0 * input / JOYSTICK_RESOLUTION - 1.0; }
-		if (typeByte == 'y') { controller.yAxis = 2.0 * input / JOYSTICK_RESOLUTION - 1.0; }
+		if (typeByte == 'y') { controller.yAxis = -(2.0 * input / JOYSTICK_RESOLUTION - 1.0); }
 		if (typeByte == 'b') { controller.button = input; }
 	}
 	Serial.printf("X:%f Y:%f B:%i\n", controller.xAxis, controller.yAxis, controller.button);
