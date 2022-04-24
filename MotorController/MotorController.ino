@@ -1,4 +1,5 @@
 #include <BluetoothSerial.h>
+#include "Chassis.h"
 
 #define BT_REMOTE_NAME   "GROVER-Remote"
 #define BT_MOTOR_NAME    "GROVER-Motor"
@@ -6,18 +7,6 @@
 
 #define JOYSTICK_RESOLUTION (1 << 12)
 #define RADIO_SYNC_BYTE     0x45
-
-typedef struct MotorPinout {
-	uint8_t en;
-	uint8_t in1;
-	uint8_t in2;
-} MotorPinout;
-
-const MotorPinout frontLeft  = { .en = 25, .in1 = 18, .in2 = 27 };
-const MotorPinout backLeft   = { .en = 26, .in1 = 16, .in2 = 17 };
-const MotorPinout frontRight = { .en = 33, .in1 = 21, .in2 = 19 };
-const MotorPinout backRight  = { .en = 32, .in1 = 23, .in2 = 22 };
-const MotorPinout motors[] = { frontLeft, backLeft, frontRight, backRight };
 
 BluetoothSerial SerialBT;
 
@@ -32,15 +21,10 @@ void setup() {
 	Serial.begin(115200);
 	SerialBT.begin(BT_MOTOR_NAME, true);
 
-	for (uint8_t i = 0; i < 4; i++) {
-		pinMode(motors[i].en, OUTPUT);
-		pinMode(motors[i].in1, OUTPUT);
-		pinMode(motors[i].in2, OUTPUT);
-		analogWrite(motors[i].en, 255);
-		digitalWrite(motors[i].in1, LOW);
-		digitalWrite(motors[i].in2, HIGH);
-	}
-
+	initMotors();
+	runLeft(0.0);
+	runRight(0.0);
+	
 	controller = (struct Controller){ .useWifi = false };
 }
 
@@ -70,9 +54,10 @@ void loop() {
 			if (!SerialBT.connect(BT_REMOTE_NAME)) { Serial.printf("failed to connect to remote, trying again...\n"); }
 		} else { readRadioInput(); }
 	}
-	
-	for (int8_t i = 0; i < 4; i++) { analogWrite(motors[i].en, controller.button ? 255 : 0); }
-	delay(10);
+
+	runLeft(controller.yAxis - controller.xAxis);
+	runRight(controller.yAxis + controller.xAxis);
+	delay(50);
 }
 
 // only used for debugging purposes

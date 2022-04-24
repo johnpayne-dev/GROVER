@@ -1,10 +1,10 @@
-#include "chassis.h"
+#include "Chassis.h"
 
-MotorPinout frontLeft  = { .en = 26, .in1 = 16, .in2 = 27 };
-MotorPinout backLeft   = { .en = 25, .in1 = 18, .in2 = 17 };
-MotorPinout frontRight = { .en = 32, .in1 = 22, .in2 = 23 };
-MotorPinout backRight  = { .en = 33, .in1 = 19, .in2 = 21 };
-MotorPinout motors[] = { frontLeft, backLeft, frontRight, backRight };
+const MotorPinout frontLeft  = { .en = 25, .in1 = 18, .in2 = 27 };
+const MotorPinout backLeft   = { .en = 26, .in1 = 16, .in2 = 17 };
+const MotorPinout frontRight = { .en = 33, .in1 = 21, .in2 = 19 };
+const MotorPinout backRight  = { .en = 32, .in1 = 23, .in2 = 22 };
+const MotorPinout motors[4] = { frontLeft, backLeft, frontRight, backRight };
 
 void initMotors() {
   for(int i = 0; i < (*(&motors + 1) - motors); i++) {
@@ -15,9 +15,11 @@ void initMotors() {
 }
 
 void runMotor(MotorPinout motor, float throttle) {
+  if (throttle > 1.0) { throttle = 1.0; }
+  if (throttle < -1.0) { throttle = -1.0; }
   digitalWrite(motor.in1, throttle < 0.0);
   digitalWrite(motor.in2, throttle > 0.0);
-  analogWrite(motor.en, 255.0 * abs(throttle));
+  analogWrite(motor.en, 255.0 * fabsf(throttle));
 }
 
 void runLeft(float throttle) {

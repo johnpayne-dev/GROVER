@@ -3,17 +3,17 @@
 
 #include <Arduino.h>
 
-typedef const struct {
+typedef struct {
   uint8_t en;
   uint8_t in1;
   uint8_t in2;
 } MotorPinout;
 
-extern MotorPinout frontLeft;
-extern MotorPinout backLeft;
-extern MotorPinout frontRight;
-extern MotorPinout backRight;
-extern MotorPinout motors[];
+extern const MotorPinout frontLeft;
+extern const MotorPinout backLeft;
+extern const MotorPinout frontRight;
+extern const MotorPinout backRight;
+extern const MotorPinout motors[4];
 
 void initMotors();
 void runMotor(MotorPinout motor, float throttle);
