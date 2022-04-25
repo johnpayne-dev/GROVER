@@ -1,5 +1,5 @@
 #include <BluetoothSerial.h>
-#include "Chassis.h"
+#include "chassis.h"
 
 #define BT_REMOTE_NAME   "GROVER-Remote"
 #define BT_MOTOR_NAME    "GROVER-Motor"
@@ -55,8 +55,8 @@ void loop() {
 		} else { readRadioInput(); }
 	}
 
-	runLeft(controller.yAxis - controller.xAxis);
-	runRight(controller.yAxis + controller.xAxis);
+	runLeft(controller.yAxis + controller.xAxis);
+	runRight(controller.yAxis - controller.xAxis);
 	delay(50);
 }
 
