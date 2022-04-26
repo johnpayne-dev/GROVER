@@ -1,80 +1,53 @@
+let up = false;
+let down = false;
+let left = false;
+let right = false;
+
+function sendKeyChange(key, state) {
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", "https://608dev-2.net/sandbox/sc/team24/GROVER/server/chassis/server.py");
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhr.send(key + "=" + state);
+}
+
 document.addEventListener("keydown", (e) => {
     switch(e.key) {
         case "ArrowUp":
-            if(document.getElementById("up").innerText == "0") {
-                document.getElementById("up").innerText = "1";
-                let xhr = new XMLHttpRequest();
-                xhr.open("POST", "https://608dev-2.net/sandbox/sc/team24/chassis/server.py");
-                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                xhr.send("up=1");
-            }
+            if (!up) { sendKeyChange("up", "1"); }
+            up = true;
             break;
         case "ArrowDown":
-            if(document.getElementById("down").innerText == "0") {
-                document.getElementById("down").innerText = "1";
-                let xhr = new XMLHttpRequest();
-                xhr.open("POST", "https://608dev-2.net/sandbox/sc/team24/chassis/server.py");
-                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                xhr.send("down=1");
-            }
+            if (!down) { sendKeyChange("down", "1"); }
+            down = true;
             break;
         case "ArrowLeft":
-            if(document.getElementById("left").innerText == "0") {
-                document.getElementById("left").innerText = "1";
-                let xhr = new XMLHttpRequest();
-                xhr.open("POST", "https://608dev-2.net/sandbox/sc/team24/chassis/server.py");
-                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                xhr.send("left=1");
-            }
+            if (!left) { sendKeyChange("left", "1"); }
+            left = true;
             break;
         case "ArrowRight":
-            if(document.getElementById("right").innerText == "0") {
-                document.getElementById("right").innerText = "1";
-                let xhr = new XMLHttpRequest();
-                xhr.open("POST", "https://608dev-2.net/sandbox/sc/team24/chassis/server.py");
-                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                xhr.send("right=1");
-            }
+            if (!right) { sendKeyChange("right", "1"); }
+            right = true;
             break;
     }
 });
+
 document.addEventListener("keyup", (e) => {
     switch(e.key) {
         case "ArrowUp":
-            if(document.getElementById("up").innerText == "1") {
-                document.getElementById("up").innerText = "0";
-                let xhr = new XMLHttpRequest();
-                xhr.open("POST", "https://608dev-2.net/sandbox/sc/team24/chassis/server.py");
-                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                xhr.send("up=0");
-            }
+            if (up) { sendKeyChange("up", "0"); }
+            up = false;
             break;
         case "ArrowDown":
-            if(document.getElementById("down").innerText == "1") {
-                document.getElementById("down").innerText = "0";
-                let xhr = new XMLHttpRequest();
-                xhr.open("POST", "https://608dev-2.net/sandbox/sc/team24/chassis/server.py");
-                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                xhr.send("down=0");
-            }
+            if (down) { sendKeyChange("down", "0"); }
+            down = false;
             break;
         case "ArrowLeft":
-            if(document.getElementById("left").innerText == "1") {
-                document.getElementById("left").innerText = "0";
-                let xhr = new XMLHttpRequest();
-                xhr.open("POST", "https://608dev-2.net/sandbox/sc/team24/chassis/server.py");
-                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                xhr.send("left=0");
-            }
+            if (left) { sendKeyChange("left", "0"); }
+            left = false;
             break;
         case "ArrowRight":
-            if(document.getElementById("right").innerText == "1") {
-                document.getElementById("right").innerText = "0";
-                let xhr = new XMLHttpRequest();
-                xhr.open("POST", "https://608dev-2.net/sandbox/sc/team24/chassis/server.py");
-                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                xhr.send("right=0");
-            }
+            if (right) { sendKeyChange("right", "0"); }
+            right = false;
             break;
     }
 });
