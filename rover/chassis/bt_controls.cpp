@@ -1,5 +1,5 @@
 #include <BluetoothSerial.h>
-#include "chassis.h"
+#include "bt_controls.h"
 
 #define BT_REMOTE_NAME   "GROVER-Remote"
 #define BT_MOTOR_NAME    "GROVER-Motor"
@@ -8,27 +8,18 @@
 #define JOYSTICK_RESOLUTION (1 << 12)
 #define RADIO_SYNC_BYTE     0x45
 
-BluetoothSerial SerialBT;
+static BluetoothSerial SerialBT;
 
-struct Controller {
-	bool useWifi;
-	float xAxis;
-	float yAxis;
-	uint8_t button;
-} controller;
-
-void setup() {
-	Serial.begin(115200);
+void setupRadio() {
 	SerialBT.begin(BT_MOTOR_NAME, true);
-
-	initMotors();
-	runLeft(0.0);
-	runRight(0.0);
-	
-	controller = (struct Controller){ .useWifi = false };
 }
 
-void readRadioInput() {
+bool readRadioInput(BTControls * controls) {
+	if (!SerialBT.connected()) {
+		Serial.printf("trying to connect to remote...\n");
+		if (!SerialBT.connect(BT_REMOTE_NAME)) { Serial.printf("failed to connect to remote, trying again...\n"); }
+		return false;
+	}
 	while (SerialBT.available()) {
 		uint8_t syncByte = SerialBT.read();
 		if (syncByte != RADIO_SYNC_BYTE) { continue; }
@@ -38,29 +29,13 @@ void readRadioInput() {
 		uint8_t msb = SerialBT.read();
 		uint8_t lsb = SerialBT.read();
 		uint16_t input = (msb << 8) | lsb;
-		if (typeByte == 'x') { controller.xAxis = 2.0 * input / JOYSTICK_RESOLUTION - 1.0; }
-		if (typeByte == 'y') { controller.yAxis = -(2.0 * input / JOYSTICK_RESOLUTION - 1.0); }
-		if (typeByte == 'b') { controller.button = input; }
+		if (typeByte == 'x') { controls->x = 2.0 * input / JOYSTICK_RESOLUTION - 1.0; }
+		if (typeByte == 'y') { controls->y = 2.0 * input / JOYSTICK_RESOLUTION - 1.0; }
+		if (typeByte == 'b') { controls->b = input; }
 	}
-	Serial.printf("X:%f Y:%f B:%i\n", controller.xAxis, controller.yAxis, controller.button);
+	return true;
 }
 
-void loop() {
-	if (controller.useWifi) {
-		//
-	} else {
-		if (!SerialBT.connected()) {
-			Serial.printf("trying to connect to remote...\n");
-			if (!SerialBT.connect(BT_REMOTE_NAME)) { Serial.printf("failed to connect to remote, trying again...\n"); }
-		} else { readRadioInput(); }
-	}
-
-	runLeft(controller.yAxis + controller.xAxis);
-	runRight(controller.yAxis - controller.xAxis);
-	delay(50);
-}
-
-// only used for debugging purposes
 void searchBluetoothDevices() {
 	bool foundRemote = false;
 	while (!foundRemote) {
