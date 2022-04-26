@@ -1,26 +1,36 @@
 #include "web_controls.h"
 
-uint32_t prevGETControlsTime = 0;
-char request_buffer[IN_BUFFER_SIZE] = {0};
-char response_buffer[OUT_BUFFER_SIZE] = {0};
+#define RESPONSE_TIMEOUT 6000
+#define IN_BUFFER_SIZE 500
+#define OUT_BUFFER_SIZE 500
+static char request_buffer[IN_BUFFER_SIZE] = {0};
+static char response_buffer[OUT_BUFFER_SIZE] = {0};
 
-struct WebControls_s {
-  uint8_t up;
-  uint8_t down;
-  uint8_t left;
-  uint8_t right;
-} WebControls = { .up = 0, .down = 0, .left = 0, .right = 0 };
+#define WIFI_NETWORK  "EECS_Labs" // change to "MIT" if outside lab
+#define WIFI_PASSWORD ""
 
-void getWebControls() {
-  if(millis() - prevGETWebControlsTime > GET_WEB_CONTROLS_INTERVAL) {
-    sprintf(request_buffer, "GET http://608dev-2.net/sandbox/sc/team24/chassis/server.py?controls HTTP/1.1\r\nHost: 608dev-2.net\r\n\r\n");
-    send_http_request("608dev-2.net", request_buffer, response_buffer, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, false);
-    WebControls.up = response_buffer[0] - '0';
-    WebControls.down = response_buffer[1] - '0';
-    WebControls.left = response_buffer[2] - '0';
-    WebControls.right = response_buffer[3] - '0';
-    prevGETWebControlsTime = millis();
+#define LED_PIN 2
+
+void setupWifi() {
+	WiFi.begin(WIFI_NETWORK, WIFI_PASSWORD);
+}
+
+bool getWebControls(WebControls * controls) {
+  if (!WiFi.isConnected()) {
+    Serial.printf("trying to connect to wifi...\n");
+    digitalWrite(LED_PIN, LOW);
+    delay(250);
+    digitalWrite(LED_PIN, HIGH);
+    delay(250);
+    return false;
   }
+  sprintf(request_buffer, "GET http://608dev-2.net/sandbox/sc/team24/GROVER/server/chassis/server.py HTTP/1.1\r\nHost: 608dev-2.net\r\n\r\n");
+  send_http_request("608dev-2.net", request_buffer, response_buffer, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, false);
+  controls->up = response_buffer[0] - '0';
+  controls->down = response_buffer[1] - '0';
+  controls->left = response_buffer[2] - '0';
+  controls->right = response_buffer[3] - '0';
+  return true;
 }
 
 uint8_t char_append(char* buff, char c, uint16_t buff_size) {

@@ -8,6 +8,8 @@
 #define JOYSTICK_RESOLUTION (1 << 12)
 #define RADIO_SYNC_BYTE     0x45
 
+#define LED_PIN 2
+
 static BluetoothSerial SerialBT;
 
 void setupRadio() {
@@ -16,10 +18,12 @@ void setupRadio() {
 
 bool readRadioInput(BTControls * controls) {
 	if (!SerialBT.connected()) {
+		digitalWrite(LED_PIN, LOW);
 		Serial.printf("trying to connect to remote...\n");
 		if (!SerialBT.connect(BT_REMOTE_NAME)) { Serial.printf("failed to connect to remote, trying again...\n"); }
 		return false;
 	}
+	digitalWrite(LED_PIN, HIGH);
 	while (SerialBT.available()) {
 		uint8_t syncByte = SerialBT.read();
 		if (syncByte != RADIO_SYNC_BYTE) { continue; }

@@ -6,7 +6,7 @@
 #define JOYSTICK_VRY_PIN    33
 #define JOYSTICK_RESOLUTION (1 << 12)
 #define JOYSTICK_SW_PIN     32
-#define JOYSTICK_DEADZONE   0.2
+#define JOYSTICK_DEADZONE   0.5
 
 #define SYNC_BYTE 0x45
 
