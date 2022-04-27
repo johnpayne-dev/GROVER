@@ -2,7 +2,7 @@ import sqlite3
 import datetime
 import json
 
-db_path = "/var/jail/home/team24/audio/from_rover_database.db"
+db_path = "/var/jail/home/team24/GROVER/server/audio/from_rover_database.db"
 def request_handler(request):
     # return request
     conn = sqlite3.connect(db_path)

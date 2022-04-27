@@ -2,7 +2,7 @@ import sqlite3
 import datetime
 from bokeh.plotting import figure
 from bokeh.embed import components
-ht_db = '/var/jail/home/askumar2/sensor/settings.db' #assumes you have a lab07a dir in your home dir
+ht_db = '/var/jail/home/team24/GROVER/server/sensors/settings.db' #assumes you have a lab07a dir in your home dir
 plot1 = figure() 
 plot2 = figure()
 plot3 = figure() 
@@ -90,49 +90,27 @@ def request_handler(request):
         script8, div8 = components(plot8)
         script9, div9 = components(plot9)
         script10, div10 = components(plot10)
-        return f'''{alt}<!DOCTYPE html>
-        <html> <script src="https://cdn.bokeh.org/bokeh/release/bokeh-2.4.0.min.js"></script>
-            <body>
-                {div1}
-            </body>
+        return f'''
+            {div1}
             {script1}
-            <body>
-                {div2}
-            </body>
+            {div2}
             {script2}
-            <body>
-                {div3}
-            </body>
+            {div3}
             {script3}
-            <body>
-                {div4}
-            </body>
+            {div4}
             {script4}
-            <body>
-                {div5}
-            </body>
+            {div5}
             {script5}
-            <body>
-                {div6}
-            </body>
+            {div6}
             {script6}
-            <body>
-                {div7}
-            </body>
+            {div7}
             {script7}
-            <body>
-                {div8}
-            </body>
+            {div8}
             {script8}
-            <body>
-                {div9}
-            </body>
+            {div9}
             {script9}
-            <body>
-                {div10}
-            </body>
+            {div10}
             {script10}
-        </html>
         '''   
     else:
       return "invalid HTTP method for this url."

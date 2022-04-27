@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <script src="script.js"></script>
-        <script src="../chassis/controls.js"></script>
-    </head>
-    <body>
-        
-    </body>
+	<head>
+		<script src="../chassis/controls.js"></script>
+		<script src="script.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> 
+		<script> $(function(){ $("#plots").load("../sensors/plot3_request.py"); }); </script> 
+		<script src="https://cdn.bokeh.org/bokeh/release/bokeh-2.4.0.min.js"></script>
+	</head>
+	<body>
+		<p id="status">status: stationary</p>
+		<img id="video" width=640 height=480>
+		<div id="plots"></div>
+	</body>
 </html>

@@ -3,10 +3,10 @@ import sqlite3
 import datetime
 from bokeh.plotting import figure
 from bokeh.embed import components
-example_db = '/var/jail/home/askumar2/sensor/settings.db' # name of database from above
+example_db = '/var/jail/home/team24/GROVER/server/sensors/settings.db' # name of database from above
 def request_handler(request):
     if request['method'] == "GET":
-        example_db = '/var/jail/home/askumar2/sensor/settings.db' # name of database from above
+        example_db = '/var/jail/home/team24/GROVER/server/sensors/settings.db' # name of database from above
         conn = sqlite3.connect(example_db)  # connect to that database
         c = conn.cursor()  # move cursor into database (allows us to execute commands)
         things = c.execute('''SELECT * FROM final_table  ORDER by time_ ASC;''').fetchall()
@@ -30,7 +30,7 @@ def request_handler(request):
         vx = request['values']['vx']
         vy = request['values']['vy']
         now = datetime.datetime.now()
-        example_db = '/var/jail/home/askumar2/sensor/settings.db' # name of database from above
+        example_db = '/var/jail/home/team24/GROVER/server/sensors/settings.db' # name of database from above
         conn = sqlite3.connect(example_db)  # connect to that database
         c = conn.cursor()  # move cursor into database (allows us to execute commands)
         c.execute('''CREATE TABLE IF NOT EXISTS deriv_table (time_ timestamp, alt REAL, vx REAL, vy REAL);''')
