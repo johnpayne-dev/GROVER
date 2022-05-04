@@ -26,6 +26,9 @@ bool getWebControls(WebControls * controls) {
   }
   sprintf(request_buffer, "GET http://608dev-2.net/sandbox/sc/team24/GROVER/server/chassis/server.py HTTP/1.1\r\nHost: 608dev-2.net\r\n\r\n");
   send_http_request("608dev-2.net", request_buffer, response_buffer, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, false);
+  for (int i = 0; i < 4; i++) {
+    if (response_buffer[i] != '0' && response_buffer[i] != '1') { return false; }
+  }
   controls->up = response_buffer[0] - '0';
   controls->down = response_buffer[1] - '0';
   controls->left = response_buffer[2] - '0';

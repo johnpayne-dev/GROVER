@@ -17,6 +17,7 @@ void setupRadio() {
 }
 
 bool readRadioInput(BTControls * controls) {
+	*controls = (BTControls){ 0 };
 	if (!SerialBT.connected()) {
 		digitalWrite(LED_PIN, LOW);
 		Serial.printf("trying to connect to remote...\n");
