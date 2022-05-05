@@ -1,19 +1,6 @@
-// ArduCAM Mini demo (C)2017 Lee
-// Web: http://www.ArduCAM.com
-// This program is a demo of how to use most of the functions
-// of the library with ArduCAM ESP32 2MP/5MP camera.
-// This demo was made for ArduCAM ESP32 2MP/5MP Camera.
-// It can take photo and send to the Web.
-// It can take photo continuously as video streaming and send to the Web.
-// The demo sketch will do the following tasks:
-// 1. Set the camera to JPEG output mode.
-// 2. if server receives "GET /capture",it can take photo and send to the Web.
-// 3.if server receives "GET /stream",it can take photo continuously as video
-//streaming and send to the Web.
-
 // This program requires the ArduCAM V4.0.0 (or later) library and ArduCAM ESP32 2MP/5MP camera
 // and use Arduino IDE 1.8.1 compiler or above
-
+// BASE64
 #include <WiFi.h>
 #include <Wire.h>
 #include <ESP32WebServer.h>
@@ -48,7 +35,7 @@ int wifiType = 0; // 0:Station  1:AP
 
 //AP mode configuration
 //Default is arducam_esp8266.If you want,you can change the AP_aaid  to your favorite name
-const char *AP_ssid = "arducam_esp32";
+const char *AP_ssid = "arducam_esp32"; 
 //Default is no password.If you want to set password,put your password here
 const char *AP_password = NULL;
 
@@ -66,8 +53,8 @@ const uint16_t IN_BUFFER_SIZE = 41000; //size of buffer to hold HTTP request
 const uint16_t OUT_BUFFER_SIZE = 1000; //size of buffer to hold HTTP response
 char request[IN_BUFFER_SIZE]; //char array buffer to hold HTTP request
 char response[OUT_BUFFER_SIZE]; //char array buffer to hold HTTP response
-char data[40300] = "data=";
-// char body[7000];
+const uint16_t DATA_SIZE = 40300;
+char data[DATA_SIZE] = "data=";
 int offset = 0;
 bool initd = false;
 static const size_t bufferSize = 2048;
@@ -78,7 +65,8 @@ int i = 0;
 bool is_header = false;
 int loc = 0;
 bool succ = true;
-char value[15];
+bool complete = false;
+char value[15]; 
 ESP32WebServer server(80);
 
 void start_capture(){
@@ -98,7 +86,7 @@ void camCapture(ArduCAM myCAM){
     Serial.println(F("Size is 0."));
   }
   myCAM.CS_LOW();
-  myCAM.set_fifo_burst();
+  myCAM.set_fifo_burst(); 
   if (!client.connected()) return;
   String response = "HTTP/1.1 200 OK\r\n";
   response += "Content-Type: image/jpeg\r\n";
@@ -116,7 +104,7 @@ void camCapture(ArduCAM myCAM){
     //Read JPEG data from FIFO
     if ( (temp == 0xD9) && (temp_last == 0xFF) ) //If find the end ,break while,
     {
-      buffer[i++] = temp;  //save the last  0XD9
+      buffer[i++] = temp;  //save the last  0XD9     
       //Write the remain bytes in the buffer
       if (!client.connected()) break;
       client.write(&buffer[0], i);
@@ -126,10 +114,10 @@ void camCapture(ArduCAM myCAM){
       CheckValues();
       i = 0;
       myCAM.CS_HIGH();
-      break;
-    }
+      break; 
+    }  
     if (is_header == true)
-    {
+    { 
       //Write image data to buffer if not full
       if (i < bufferSize)
       buffer[i++] = temp;
@@ -143,15 +131,15 @@ void camCapture(ArduCAM myCAM){
         CheckValues();
         i = 0;
         buffer[i++] = temp;
-      }
+      }        
     }
     else if ((temp == 0xD8) & (temp_last == 0xFF))
     {
       is_header = true;
       buffer[i++] = temp_last;
-      buffer[i++] = temp;
-    }
-  }
+      buffer[i++] = temp;   
+    } 
+  } 
 }
 
 void serverCapture(){
@@ -187,7 +175,7 @@ void insert_answer(){
   // body[0] = '\0';
   offset = 0; //reset offset variable for sprintf-ing
   // http://608dev-2.net/sandbox/sc/your_kerberos/cat1/hey.py
-
+  
   // Serial.println(data);
   int len = strlen(data);
   Serial.println(len);
@@ -196,13 +184,15 @@ void insert_answer(){
   // sprintf(body, "data=%s", data);
   // Serial.println(body);
   // int len = strlen(body);
-  offset += sprintf(request + offset, "POST http://www.608dev-2.net/sandbox/sc/aponce/grover_server.py  HTTP/1.1\r\n");
+  offset += sprintf(request + offset, "POST http://www.608dev-2.net/sandbox/sc/team24/GROVER/server/camera/server.py  HTTP/1.1\r\n");
+  // offset += sprintf(request + offset, "POST http://www.608dev-2.net/sandbox/sc/aponce/grover_server.py  HTTP/1.1\r\n");
   offset += sprintf(request + offset, "Host: 608dev-2.net\r\n");
   offset += sprintf(request + offset, "Content-Type: application/x-www-form-urlencoded\r\n");
   offset += sprintf(request + offset, "Content-Length: %d\r\n\r\n", len);
   offset += sprintf(request + offset, "%s\r\n", data);
 
   do_http_request("608dev-2.net", request, response, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, false);
+  Serial.println(response);
 }
 
 void CheckValues(){
@@ -213,14 +203,14 @@ void CheckValues(){
       offset = 5;
       initd = true;
     }
-
+    
     // memset(data, 0, sizeof(data)); //write 0 (or '\0') to all bytes in char array!
     Serial.println(loc);
     for (int j = 0; j < loc; j++){
-      // sprintf(value, "%02X", buffer[j]);
+      // sprintf(value, "%c", buffer[j]);
 
       offset += sprintf(data + offset, "%02X", buffer[j]);
-      // Serial.println(value);
+      // Serial.println(value);      
     }
     // Serial.println("This is the loc");
     // Serial.println(loc);
@@ -228,117 +218,81 @@ void CheckValues(){
   else{
     Serial.println("Failed capture");
   }
-
-  // offset = 0;
-  // for (int i = 0; i<loc; i++){
-  //   offset += sprintf(data + offset, "%s", buffer[i])
-  // }
-
-
 }
 
 void serverStream(){
-  WiFiClient client = server.client();
+  start_capture();
+  while (!myCAM.get_bit(ARDUCHIP_TRIG, CAP_DONE_MASK));
+  size_t len = myCAM.read_fifo_length();
+  if (len >= MAX_FIFO_SIZE) //8M
+  {
+    Serial.println(F("Over size."));
+    return;
+  }
+  if (len == 0 ) //0 kb
+  {
+    Serial.println(F("Size is 0."));
+    return;
+  } 
+  myCAM.CS_LOW();
+  myCAM.set_fifo_burst();
+  memset(data, 0, sizeof(data));
+  strcat(data, "data=");
+  i = 0;
+  loc = 5;
+  initd = false;
+  succ = false;
+  complete = false;
+  is_header = false;
+  char holder[5] = {0};
+  char raw_samples[3];
 
-  String response = "HTTP/1.1 200 OK\r\n";
-  response += "Content-Type: multipart/x-mixed-replace; boundary=frame\r\n\r\n";
-  server.sendContent(response);
+  while ( len-- )
+  {
+    temp_last = temp;
+    temp =  SPI.transfer(0x00);
 
-  while (1){
-    start_capture();
-    while (!myCAM.get_bit(ARDUCHIP_TRIG, CAP_DONE_MASK));
-    size_t len = myCAM.read_fifo_length();
-    if (len >= MAX_FIFO_SIZE) //8M
-    {
-      Serial.println(F("Over size."));
-      continue;
-    }
-    if (len == 0 ) //0 kb
-    {
-      Serial.println(F("Size is 0."));
-      continue;
-    }
-    myCAM.CS_LOW();
-    myCAM.set_fifo_burst();
-    if (!client.connected()) break;
-    response = "--frame\r\n";
-    response += "Content-Type: image/jpeg\r\n\r\n";
-    server.sendContent(response);
-    i = 0;
-    loc = 0;
-    while ( len-- )
-    {
-      temp_last = temp;
-      temp =  SPI.transfer(0x00);
-
-      //Read JPEG data from FIFO
-      if ( (temp == 0xD9) && (temp_last == 0xFF) ) //If find the end ,break while,
-      {
-        buffer[i++] = temp;  //save the last  0XD9
-        //Write the remain bytes in the buffer
-        myCAM.CS_HIGH();;
-        if (!client.connected()) break;
-        client.write(&buffer[0], i);
-        is_header = false;
-        loc += i;
-        succ = true;
+    //Read JPEG data from FIFO
+    if (is_header){
+      if (loc + 2 >= DATA_SIZE){
+        Serial.println("Image too large");
+      }
+      // i+= sprintf(data + i, "%02X", temp);
+      raw_samples[i % 3] = temp;
+      i++;
+      if (i % 3 == 0){
+        base64_encode(holder, raw_samples, 3);
+        loc += sprintf(data + loc, "%s", holder);
         i = 0;
       }
-      if (is_header == true)
+      if ((temp == 0xD9) && (temp_last == 0xFF)) //If find the end ,break while,
       {
-        //Write image data to buffer if not full
-        if (i < bufferSize)
-        buffer[i++] = temp;
-        else
-        {
-          //Write bufferSize bytes image data to file
-          myCAM.CS_HIGH();
-          if (!client.connected()) break;
-          client.write(&buffer[0], bufferSize);
-          loc += i;
-          i = 0;
-          buffer[i++] = temp;
-          myCAM.CS_LOW();
-          myCAM.set_fifo_burst();
-        }
-      }
-      else if ((temp == 0xD8) & (temp_last == 0xFF))
-      {
-        is_header = true;
-        buffer[i++] = temp_last;
-        buffer[i++] = temp;
-      }
+        complete = true;
+        break;
+      }        
     }
-    CheckValues();
-    insert_answer();
-    if (!client.connected()) break;
+    else if ((temp == 0xD8) & (temp_last == 0xFF))
+    {
+      is_header = true;
+      // i+= sprintf(data + i, "%02X", temp_last);
+      // i+= sprintf(data + i, "%02X", temp);
+      raw_samples[0] = temp_last;
+      raw_samples[1] = temp;
+      i = 2;
+    } 
   }
-}
-void handleNotFound(){
-  String message = "Server is running!\n\n";
-  message += "URI: ";
-  message += server.uri();
-  message += "\nMethod: ";
-  message += (server.method() == HTTP_GET)?"GET":"POST";
-  message += "\nArguments: ";
-  message += server.args();
-  message += "\n";
-  server.send(200, "text/plain", message);
-  Serial.println(message);
-
-  if (server.hasArg("ql")){
-    int ql = server.arg("ql").toInt();
-    #if defined (OV2640_MINI_2MP) || defined (OV2640_CAM)
-    myCAM.OV2640_set_JPEG_size(ql);
-    #elif defined (OV5640_MINI_5MP_PLUS) || defined (OV5640_CAM)
-    myCAM.OV5640_set_JPEG_size(ql);
-    #elif defined (OV5642_MINI_5MP_PLUS) || defined (OV5642_MINI_5MP_BIT_ROTATION_FIXED) ||(defined (OV5642_CAM))
-    myCAM.OV5642_set_JPEG_size(ql);
-    #endif
-
-    Serial.println("QL change to: " + server.arg("ql"));
+  if (i!=0){
+    base64_encode(holder, raw_samples, i);
+    loc += sprintf(data + loc, "%s", holder);
   }
+  myCAM.CS_HIGH(); 
+  if (!complete) {
+    Serial.println("incomplete image, returning");
+    return;
+  }
+  insert_answer();
 }
+
 void setup() {
   uint8_t vid, pid;
   uint8_t temp;
@@ -407,13 +361,13 @@ void setup() {
   myCAM.set_format(JPEG);
   myCAM.InitCAM();
   #if defined (OV2640_MINI_2MP) || defined (OV2640_CAM)
-  myCAM.OV2640_set_JPEG_size(OV2640_320x240);
+  myCAM.OV2640_set_JPEG_size(OV2640_160x120);
   #elif defined (OV5640_MINI_5MP_PLUS) || defined (OV5640_CAM)
   myCAM.write_reg(ARDUCHIP_TIM, VSYNC_LEVEL_MASK);   //VSYNC is active HIGH
   myCAM.OV5640_set_JPEG_size(OV5640_320x240);
   #elif defined (OV5642_MINI_5MP_PLUS) || defined (OV5642_MINI_5MP) || defined (OV5642_MINI_5MP_BIT_ROTATION_FIXED) ||(defined (OV5642_CAM))
   myCAM.write_reg(ARDUCHIP_TIM, VSYNC_LEVEL_MASK);   //VSYNC is active HIGH
-  myCAM.OV5640_set_JPEG_size(OV5642_320x240);
+  myCAM.OV5640_set_JPEG_size(OV5642_320x240);  
   #endif
 
   myCAM.clear_fifo_flag();
@@ -457,16 +411,12 @@ void setup() {
     Serial.println(WiFi.softAPIP());
   }
 
-  // Start the server
-  server.on("/capture", HTTP_GET, serverCapture);
-  server.on("/stream", HTTP_GET, serverStream);
-  server.onNotFound(handleNotFound);
-  server.begin();
-  Serial.println(F("Server started"));
 }
 
 void loop() {
-  server.handleClient();
+  serverStream();
+  // delay(1000);
+  // while(true);
 }
 
 
