@@ -18,4 +18,4 @@ function updateVideo() {
 }
 
 setInterval(updateStatus, 50);
-setInterval(updateVideo, 50);
+setInterval(updateVideo, 32);

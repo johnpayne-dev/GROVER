@@ -11,6 +11,9 @@ function sendKeyChange(key, state) {
 }
 
 document.addEventListener("keydown", (e) => {
+    if (["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].indexOf(e.code) > -1) {
+        e.preventDefault();
+    }
     switch(e.key) {
         case "ArrowUp":
             if (!up) { sendKeyChange("up", "1"); }

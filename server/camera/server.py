@@ -67,6 +67,7 @@ def request_handler(request):
         if not image:
             return 0
         else:
+            return image[0]
             image = get_picture(image[0])
             image.save("/var/jail/home/team24/GROVER/server/camera/grover_image.jpeg")
             return "<img src = http://608dev-2.net/sandbox/sc/team24/GROVER/server/camera/grover_image.jpeg alt = \"GetImageError\"> </img> "
@@ -75,16 +76,13 @@ def request_handler(request):
         if request["content-type"] == "application/x-www-form-urlencoded":
             image_data = ""
             try:
-                image_data = request["form"]["data"]
+                image_data = request["form"]["data"].replace(' ', '+')
+                image = open('/var/jail/home/team24/GROVER/server/camera/grover_image.jpeg', 'wb')
+                image.write(base64.b64decode(image_data))
+                image.close()
+                return image_data
             except Exception as e:
-                # return e here or use your own custom return message for error catch
-                #be careful just copy-pasting the try except as it stands since it will catch *all* Exceptions not just ones related to number conversion.
-                return e
-
-            image = open('/var/jail/home/team24/GROVER/server/camera/grover_image.jpeg', 'wb')
-            image.write(binascii.unhexlify(image_data))
-            image.close()
-            return "saved image"
+                return str(e)
         else:
             return "Check incorrect content-type"
             
