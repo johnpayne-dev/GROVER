@@ -86,9 +86,9 @@ def request_handler(request):
         script4, div4 = components(plot4)
         script5, div5 = components(plot5)
         script6, div6 = components(plot6)
-        script7, div7 = components(plot7)
-        script8, div8 = components(plot8)
-        script9, div9 = components(plot9)
+        script7, div7 = components(plot8)
+        script8, div8 = components(plot9)
+        script9, div9 = components(plot10)
         script10, div10 = components(plot10)
         return f'''
             {div1}
@@ -109,8 +109,6 @@ def request_handler(request):
             {script8}
             {div9}
             {script9}
-            {div10}
-            {script10}
         '''   
     else:
       return "invalid HTTP method for this url."
