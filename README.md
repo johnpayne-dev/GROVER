@@ -1,10 +1,8 @@
 # GROVER
 
-MIT 6.08 Final Project
-
 GROVER is a multi-purpose remote controlled rover that features a web controller, a camera to stream video, an optional radio controller for internetless control, a microphone and speaker to allow communication to and from the controller, an automatic braking system using LIDAR, and other sensors that are recorded onto a server and can be viewed as graphs. The camera can be used to steer the rover to not bump into anything and for navigation purposes. The speaker and microphone allow a remote user to communicate with someone who is next to the rover. 
 
-https://user-images.githubusercontent.com/79012575/167905278-bbc015c7-4fb3-47b1-b043-6ad73a95f462.mov
+![](https://user-images.githubusercontent.com/79012575/167905278-bbc015c7-4fb3-47b1-b043-6ad73a95f462.mov)
 
 # Documentation
 
